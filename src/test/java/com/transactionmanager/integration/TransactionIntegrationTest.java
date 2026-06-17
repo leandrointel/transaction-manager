@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import com.transactionmanager.persistence.TransactionRepository;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,11 +20,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Full integration tests for the Transaction Manager REST API.
- * The in-memory store is cleared before each test to guarantee isolation.
+ * Each nested class gets a fresh context via @DirtiesContext to guarantee store isolation.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @DisplayName("Transaction Manager – Integration Tests")
 class TransactionIntegrationTest {
 
@@ -33,14 +34,6 @@ class TransactionIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
-
-    @Autowired
-    TransactionRepository transactionRepository;
-
-    @BeforeEach
-    void resetStore() {
-        transactionRepository.clear();
-    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Helper
