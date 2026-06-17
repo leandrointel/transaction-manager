@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: transaction-manager-test
+
+logging:
+  level:
+    com.transactionmanager: DEBUG
