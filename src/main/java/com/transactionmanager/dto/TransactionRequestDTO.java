@@ -1,6 +1,6 @@
 package com.transactionmanager.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.transactionmanager.enums.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO for incoming transaction creation/update requests.
+ * Snake_case mapping is handled globally by Jackson — no field-level annotations needed.
  */
 @Getter
 @Builder
@@ -21,11 +22,13 @@ public class TransactionRequestDTO {
     @NotNull(message = "amount is required")
     private Double amount;
 
-    /** Transaction type identifier. Must not be blank. */
+    /**
+     * Transaction type. Must match one of the values in {@link TransactionType}
+     * (case-insensitive). Validated as a string here; converted to enum in the service layer.
+     */
     @NotBlank(message = "type is required")
     private String type;
 
-    /** Optional id of the parent transaction. */
-    @JsonProperty("parent_id")
+    /** Optional id of the parent transaction. Mapped from snake_case via global Jackson config. */
     private Long parentId;
 }
