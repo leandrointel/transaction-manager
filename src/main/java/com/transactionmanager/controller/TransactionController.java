@@ -8,6 +8,9 @@ import com.transactionmanager.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +26,8 @@ import java.util.List;
 @Tag(name = "Transactions", description = "Transaction management API")
 public class TransactionController {
 
+    private static final Logger log = LoggerFactory.getLogger(TransactionController.class);
+
     private final TransactionService transactionService;
 
     public TransactionController(TransactionService transactionService) {
@@ -37,10 +42,18 @@ public class TransactionController {
     @Operation(summary = "List all available transaction types")
     @GetMapping("/types")
     public ResponseEntity<List<String>> getTransactionTypes() {
-        List<String> types = Arrays.stream(TransactionType.values())
-                .map(Enum::name)
-                .toList();
-        return ResponseEntity.ok(types);
+        MDC.put("method", "GET");
+        MDC.put("uri", "/transactions/types");
+        try {
+            log.debug("Fetching all transaction types");
+            List<String> types = Arrays.stream(TransactionType.values())
+                    .map(Enum::name)
+                    .toList();
+            log.debug("Returning {} transaction types", types.size());
+            return ResponseEntity.ok(types);
+        } finally {
+            MDC.clear();
+        }
     }
 
     /**
@@ -57,7 +70,16 @@ public class TransactionController {
             @PathVariable long transactionId,
             @Valid @RequestBody TransactionRequestDTO request) {
 
-        return ResponseEntity.ok(transactionService.save(transactionId, request));
+        MDC.put("method", "PUT");
+        MDC.put("uri", "/transactions/" + transactionId);
+        try {
+            log.info("Saving transaction id={} type={} parentId={}", transactionId, request.type(), request.parentId());
+            StatusResponseDTO response = transactionService.save(transactionId, request);
+            log.info("Transaction id={} saved successfully", transactionId);
+            return ResponseEntity.ok(response);
+        } finally {
+            MDC.clear();
+        }
     }
 
     /**
@@ -70,7 +92,16 @@ public class TransactionController {
     @Operation(summary = "Get transaction ids by type")
     @GetMapping("/types/{type}")
     public ResponseEntity<List<Long>> getByType(@PathVariable String type) {
-        return ResponseEntity.ok(transactionService.getIdsByType(type));
+        MDC.put("method", "GET");
+        MDC.put("uri", "/transactions/types/" + type);
+        try {
+            log.debug("Fetching transaction ids for type={}", type);
+            List<Long> ids = transactionService.getIdsByType(type);
+            log.debug("Found {} transactions of type={}", ids.size(), type);
+            return ResponseEntity.ok(ids);
+        } finally {
+            MDC.clear();
+        }
     }
 
     /**
@@ -83,6 +114,15 @@ public class TransactionController {
     @Operation(summary = "Get transitive sum of a transaction tree")
     @GetMapping("/sum/{transactionId}")
     public ResponseEntity<SumResponseDTO> getSum(@PathVariable long transactionId) {
-        return ResponseEntity.ok(transactionService.getSum(transactionId));
+        MDC.put("method", "GET");
+        MDC.put("uri", "/transactions/sum/" + transactionId);
+        try {
+            log.debug("Computing transitive sum for transactionId={}", transactionId);
+            SumResponseDTO response = transactionService.getSum(transactionId);
+            log.debug("Transitive sum for transactionId={} is {}", transactionId, response.sum());
+            return ResponseEntity.ok(response);
+        } finally {
+            MDC.clear();
+        }
     }
 }
