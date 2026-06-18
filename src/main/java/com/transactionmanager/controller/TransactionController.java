@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,19 +46,12 @@ public class TransactionController {
     @Operation(summary = "List all available transaction types")
     @GetMapping("/types")
     public ResponseEntity<List<String>> getTransactionTypes() {
-        MDC.put("method", "GET");
-        MDC.put("uri", "/transactions/types");
-        try {
-            log.debug("Fetching all transaction types");
-            List<String> types = Arrays.stream(TransactionType.values())
-                    .map(Enum::name)
-                    .toList();
-            log.debug("Returning {} transaction types", types.size());
-            return ResponseEntity.ok(types);
-        } finally {
-            MDC.remove("method");
-            MDC.remove("uri");
-        }
+        log.debug("Fetching all transaction types");
+        List<String> types = Arrays.stream(TransactionType.values())
+                .map(Enum::name)
+                .toList();
+        log.debug("Returning {} transaction types", types.size());
+        return ResponseEntity.ok(types);
     }
 
     /**
@@ -76,17 +68,10 @@ public class TransactionController {
             @PathVariable long transactionId,
             @Valid @RequestBody TransactionRequestDTO request) {
 
-        MDC.put("method", "PUT");
-        MDC.put("uri", "/transactions/" + transactionId);
-        try {
-            log.info("Saving transaction id={} type={} parentId={}", transactionId, sanitize(request.type()), request.parentId());
-            StatusResponseDTO response = transactionService.save(transactionId, request);
-            log.info("Transaction id={} saved successfully", transactionId);
-            return ResponseEntity.ok(response);
-        } finally {
-            MDC.remove("method");
-            MDC.remove("uri");
-        }
+        log.info("Saving transaction id={} type={} parentId={}", transactionId, sanitize(request.type()), request.parentId());
+        StatusResponseDTO response = transactionService.save(transactionId, request);
+        log.info("Transaction id={} saved successfully", transactionId);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -99,17 +84,10 @@ public class TransactionController {
     @Operation(summary = "Get transaction ids by type")
     @GetMapping("/types/{type}")
     public ResponseEntity<List<Long>> getByType(@PathVariable String type) {
-        MDC.put("method", "GET");
-        MDC.put("uri", "/transactions/types/" + sanitize(type));
-        try {
-            log.debug("Fetching transaction ids for type={}", sanitize(type));
-            List<Long> ids = transactionService.getIdsByType(type);
-            log.debug("Found {} transactions of type={}", ids.size(), sanitize(type));
-            return ResponseEntity.ok(ids);
-        } finally {
-            MDC.remove("method");
-            MDC.remove("uri");
-        }
+        log.debug("Fetching transaction ids for type={}", sanitize(type));
+        List<Long> ids = transactionService.getIdsByType(type);
+        log.debug("Found {} transactions of type={}", ids.size(), sanitize(type));
+        return ResponseEntity.ok(ids);
     }
 
     /**
@@ -122,16 +100,9 @@ public class TransactionController {
     @Operation(summary = "Get transitive sum of a transaction tree")
     @GetMapping("/sum/{transactionId}")
     public ResponseEntity<SumResponseDTO> getSum(@PathVariable long transactionId) {
-        MDC.put("method", "GET");
-        MDC.put("uri", "/transactions/sum/" + transactionId);
-        try {
-            log.debug("Computing transitive sum for transactionId={}", transactionId);
-            SumResponseDTO response = transactionService.getSum(transactionId);
-            log.debug("Transitive sum for transactionId={} is {}", transactionId, response.sum());
-            return ResponseEntity.ok(response);
-        } finally {
-            MDC.remove("method");
-            MDC.remove("uri");
-        }
+        log.debug("Computing transitive sum for transactionId={}", transactionId);
+        SumResponseDTO response = transactionService.getSum(transactionId);
+        log.debug("Transitive sum for transactionId={} is {}", transactionId, response.sum());
+        return ResponseEntity.ok(response);
     }
 }
