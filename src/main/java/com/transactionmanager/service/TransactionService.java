@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Business logic for the transaction management domain.
+ * Delegates persistence to {@link TransactionRepository} and remains agnostic of the backing store.
+ */
 @Service
 public class TransactionService {
 
@@ -22,6 +26,18 @@ public class TransactionService {
         this.repository = repository;
     }
 
+    /**
+     * Creates or replaces a transaction.
+     *
+     * <p>Validates the type string against {@link TransactionType} (case-insensitive) and, when a
+     * parent id is provided, verifies that the parent transaction already exists.
+     *
+     * @param id      the transaction id, supplied by the caller via the URL path
+     * @param request the request payload containing amount, type, and optional parent id
+     * @return a status response with {@code "ok"} on success
+     * @throws InvalidTransactionException if the type is not a known {@link TransactionType} value
+     *                                     or the referenced parent does not exist
+     */
     public StatusResponseDTO save(long id, TransactionRequestDTO request) {
         TransactionType type;
         try {
@@ -39,6 +55,15 @@ public class TransactionService {
         return StatusResponseDTO.ok();
     }
 
+    /**
+     * Returns the ids of all transactions whose type matches the given string.
+     *
+     * <p>The comparison is case-insensitive. An unrecognized type string returns an empty list
+     * rather than an error, so callers receive a consistent array response for any input.
+     *
+     * @param typeStr the raw type string from the request path
+     * @return a list of transaction ids; empty if no match or the type is unknown
+     */
     public List<Long> getIdsByType(String typeStr) {
         try {
             TransactionType type = TransactionType.fromString(typeStr);
@@ -50,12 +75,28 @@ public class TransactionService {
         }
     }
 
+    /**
+     * Computes the transitive sum of a transaction and all its descendants.
+     *
+     * <p>Traverses the tree top-down starting from the given id, accumulating the {@code amount}
+     * of every node reachable through parent-child relationships.
+     *
+     * @param id the root transaction id
+     * @return a {@link SumResponseDTO} containing the total sum
+     * @throws TransactionNotFoundException if no transaction with the given id exists
+     */
     public SumResponseDTO getSum(long id) {
         Transaction root = repository.findById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
         return new SumResponseDTO(sumRecursive(root));
     }
 
+    /**
+     * Recursively accumulates the amount of a transaction and all its descendants.
+     *
+     * @param transaction the current node in the traversal
+     * @return the sum of {@code transaction.amount()} plus the sums of all child subtrees
+     */
     private double sumRecursive(Transaction transaction) {
         double childSum = repository.findByParentId(transaction.id()).stream()
                 .mapToDouble(this::sumRecursive)
