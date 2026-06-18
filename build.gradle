@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.5'
-    id 'org.springdoc.openapi-gradle-plugin' version '1.8.0'
     id 'jacoco'
 }
 
@@ -56,10 +55,4 @@ jacocoTestCoverageVerification {
             }
         }
     }
-}
-
-openApi {
-    apiDocsUrl = 'http://localhost:8080/v3/api-docs'
-    outputDir = file("$buildDir/openapi")
-    outputFileName = 'openapi.json'
 }
