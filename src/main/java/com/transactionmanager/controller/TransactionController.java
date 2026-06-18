@@ -3,12 +3,14 @@ package com.transactionmanager.controller;
 import com.transactionmanager.dto.StatusResponseDTO;
 import com.transactionmanager.dto.SumResponseDTO;
 import com.transactionmanager.dto.TransactionRequestDTO;
+import com.transactionmanager.enums.TransactionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,6 +21,15 @@ import java.util.List;
 @RequestMapping("/transactions")
 @Tag(name = "Transactions", description = "Transaction management API")
 public class TransactionController {
+
+    @Operation(summary = "List all available transaction types")
+    @GetMapping("/types")
+    public ResponseEntity<List<String>> getTransactionTypes() {
+        List<String> types = Arrays.stream(TransactionType.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(types);
+    }
 
     @Operation(summary = "Create or update a transaction")
     @PutMapping("/{transactionId}")

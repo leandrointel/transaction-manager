@@ -2,6 +2,7 @@ package com.transactionmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transactionmanager.dto.TransactionRequestDTO;
+import com.transactionmanager.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -153,6 +156,35 @@ class TransactionIntegrationTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // GET /transactions/types
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("GET /transactions/types")
+    class GetTransactionTypes {
+
+        @Test
+        @DisplayName("should return all available transaction types")
+        void returnsAllTypes() throws Exception {
+            mockMvc.perform(get("/transactions/types"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$", hasItems(
+                            Arrays.stream(TransactionType.values()).map(Enum::name).toArray(String[]::new)
+                    )));
+        }
+
+        @Test
+        @DisplayName("should return exactly the number of defined enum values")
+        void returnsCorrectCount() throws Exception {
+            mockMvc.perform(get("/transactions/types"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(TransactionType.values().length)));
         }
     }
 
