@@ -6,7 +6,6 @@ import com.transactionmanager.dto.TransactionRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +15,6 @@ import java.util.List;
  * REST controller exposing the transaction management endpoints.
  * Methods are stubs — implementation will be wired in subsequent steps.
  */
-@Slf4j
 @RestController
 @RequestMapping("/transactions")
 @Tag(name = "Transactions", description = "Transaction management API")

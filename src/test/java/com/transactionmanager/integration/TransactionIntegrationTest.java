@@ -40,11 +40,7 @@ class TransactionIntegrationTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void putTransaction(long id, double amount, String type, Long parentId) throws Exception {
-        TransactionRequestDTO dto = TransactionRequestDTO.builder()
-                .amount(amount)
-                .type(type)
-                .parentId(parentId)
-                .build();
+        TransactionRequestDTO dto = new TransactionRequestDTO(amount, type, parentId);
 
         mockMvc.perform(put("/transactions/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
