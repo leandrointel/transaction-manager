@@ -298,10 +298,10 @@ class TransactionIntegrationTest {
         @Test
         @DisplayName("should handle deep transitive chain correctly")
         void deepChain() throws Exception {
-            putTransaction(200L, 1.0, "deep", null);
-            putTransaction(201L, 2.0, "deep", 200L);
-            putTransaction(202L, 4.0, "deep", 201L);
-            putTransaction(203L, 8.0, "deep", 202L);
+            putTransaction(200L, 1.0, "other", null);
+            putTransaction(201L, 2.0, "other", 200L);
+            putTransaction(202L, 4.0, "other", 201L);
+            putTransaction(203L, 8.0, "other", 202L);
 
             mockMvc.perform(get("/transactions/sum/200"))
                     .andExpect(status().isOk())
@@ -311,8 +311,8 @@ class TransactionIntegrationTest {
         @Test
         @DisplayName("sum with decimal amounts should be accurate")
         void decimalAmounts() throws Exception {
-            putTransaction(300L, 1.5, "fractional", null);
-            putTransaction(301L, 2.5, "fractional", 300L);
+            putTransaction(300L, 1.5, "other", null);
+            putTransaction(301L, 2.5, "other", 300L);
 
             mockMvc.perform(get("/transactions/sum/300"))
                     .andExpect(status().isOk())
