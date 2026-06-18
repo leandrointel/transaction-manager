@@ -34,6 +34,11 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
+    private static String sanitize(String value) {
+        if (value == null) return null;
+        return value.replace("\r", "").replace("\n", "");
+    }
+
     /**
      * Returns the names of all values defined in {@link TransactionType}.
      *
@@ -74,7 +79,7 @@ public class TransactionController {
         MDC.put("method", "PUT");
         MDC.put("uri", "/transactions/" + transactionId);
         try {
-            log.info("Saving transaction id={} type={} parentId={}", transactionId, request.type(), request.parentId());
+            log.info("Saving transaction id={} type={} parentId={}", transactionId, sanitize(request.type()), request.parentId());
             StatusResponseDTO response = transactionService.save(transactionId, request);
             log.info("Transaction id={} saved successfully", transactionId);
             return ResponseEntity.ok(response);
@@ -95,11 +100,11 @@ public class TransactionController {
     @GetMapping("/types/{type}")
     public ResponseEntity<List<Long>> getByType(@PathVariable String type) {
         MDC.put("method", "GET");
-        MDC.put("uri", "/transactions/types/" + type);
+        MDC.put("uri", "/transactions/types/" + sanitize(type));
         try {
-            log.debug("Fetching transaction ids for type={}", type);
+            log.debug("Fetching transaction ids for type={}", sanitize(type));
             List<Long> ids = transactionService.getIdsByType(type);
-            log.debug("Found {} transactions of type={}", ids.size(), type);
+            log.debug("Found {} transactions of type={}", ids.size(), sanitize(type));
             return ResponseEntity.ok(ids);
         } finally {
             MDC.remove("method");
