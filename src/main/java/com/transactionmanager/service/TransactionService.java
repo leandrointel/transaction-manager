@@ -10,8 +10,10 @@ import com.transactionmanager.model.Transaction;
 import com.transactionmanager.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Business logic for the transaction management domain.
@@ -88,19 +90,17 @@ public class TransactionService {
     public SumResponseDTO getSum(long id) {
         Transaction root = repository.findById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
-        return new SumResponseDTO(sumRecursive(root));
-    }
 
-    /**
-     * Recursively accumulates the amount of a transaction and all its descendants.
-     *
-     * @param transaction the current node in the traversal
-     * @return the sum of {@code transaction.amount()} plus the sums of all child subtrees
-     */
-    private double sumRecursive(Transaction transaction) {
-        double childSum = repository.findByParentId(transaction.id()).stream()
-                .mapToDouble(this::sumRecursive)
+        double total = Stream.iterate(
+                        List.of(root),
+                        level -> !level.isEmpty(),
+                        level -> level.stream()
+                                .flatMap(t -> repository.findByParentId(t.id()).stream())
+                                .toList())
+                .flatMap(Collection::stream)
+                .mapToDouble(Transaction::amount)
                 .sum();
-        return transaction.amount() + childSum;
+
+        return new SumResponseDTO(total);
     }
 }
