@@ -52,7 +52,8 @@ public class TransactionController {
             log.debug("Returning {} transaction types", types.size());
             return ResponseEntity.ok(types);
         } finally {
-            MDC.clear();
+            MDC.remove("method");
+            MDC.remove("uri");
         }
     }
 
@@ -78,7 +79,8 @@ public class TransactionController {
             log.info("Transaction id={} saved successfully", transactionId);
             return ResponseEntity.ok(response);
         } finally {
-            MDC.clear();
+            MDC.remove("method");
+            MDC.remove("uri");
         }
     }
 
@@ -100,7 +102,8 @@ public class TransactionController {
             log.debug("Found {} transactions of type={}", ids.size(), type);
             return ResponseEntity.ok(ids);
         } finally {
-            MDC.clear();
+            MDC.remove("method");
+            MDC.remove("uri");
         }
     }
 
@@ -122,7 +125,8 @@ public class TransactionController {
             log.debug("Transitive sum for transactionId={} is {}", transactionId, response.sum());
             return ResponseEntity.ok(response);
         } finally {
-            MDC.clear();
+            MDC.remove("method");
+            MDC.remove("uri");
         }
     }
 }
