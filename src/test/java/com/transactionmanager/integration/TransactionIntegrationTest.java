@@ -157,6 +157,33 @@ class TransactionIntegrationTest {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // GET /transactions/types
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("GET /transactions/types")
+    class GetTransactionTypes {
+
+        @Test
+        @DisplayName("should return all available transaction types")
+        void returnsAllTypes() throws Exception {
+            mockMvc.perform(get("/transactions/types"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$", hasItems("CARS", "SHOPPING", "FOOD", "SALARY", "TRAVEL", "ENTERTAINMENT", "HEALTH", "OTHER")));
+        }
+
+        @Test
+        @DisplayName("should return exactly the number of defined enum values")
+        void returnsCorrectCount() throws Exception {
+            mockMvc.perform(get("/transactions/types"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(8)));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // GET /transactions/types/{type}
     // ─────────────────────────────────────────────────────────────────────────
 
