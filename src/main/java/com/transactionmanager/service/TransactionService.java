@@ -11,6 +11,7 @@ import com.transactionmanager.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TransactionService {
@@ -29,7 +30,7 @@ public class TransactionService {
             throw new InvalidTransactionException(e.getMessage());
         }
 
-        if (request.parentId() != null && !repository.existsById(request.parentId())) {
+        if (Objects.nonNull(request.parentId()) && !repository.existsById(request.parentId())) {
             throw new InvalidTransactionException(
                     "Parent transaction with id " + request.parentId() + " does not exist");
         }

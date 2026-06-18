@@ -44,6 +44,23 @@ class InMemoryTransactionRepositoryTest {
             assertThat(repository.findById(1L)).contains(updated);
             assertThat(repository.findByType(TransactionType.CARS)).isEmpty();
         }
+
+        @Test
+        @DisplayName("should remove from old parent's children index when parent changes on overwrite")
+        void updatesChildrenIndexOnParentChange() {
+            repository.save(new Transaction(1L, 100.0, TransactionType.CARS, null));
+            repository.save(new Transaction(2L, 100.0, TransactionType.CARS, null));
+            repository.save(new Transaction(3L, 50.0, TransactionType.FOOD, 1L));
+
+            assertThat(repository.findByParentId(1L)).extracting(Transaction::id).containsExactly(3L);
+            assertThat(repository.findByParentId(2L)).isEmpty();
+
+            // reasignar tx3 al padre 2
+            repository.save(new Transaction(3L, 50.0, TransactionType.FOOD, 2L));
+
+            assertThat(repository.findByParentId(1L)).isEmpty();
+            assertThat(repository.findByParentId(2L)).extracting(Transaction::id).containsExactly(3L);
+        }
     }
 
     @Nested
