@@ -248,17 +248,6 @@ paths:
                   type: integer
                   format: int64
               example: [10, 11, 12]
-        '400':
-          description: Unknown transaction type
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                status: 400
-                error: Bad Request
-                message: "Invalid transaction type: 'XYZ'. Valid values: [CARS, SHOPPING, FOOD, SALARY, TRAVEL, ENTERTAINMENT, HEALTH, OTHER]"
-                timestamp: "2026-06-17T12:00:00Z"
         '500':
           $ref: '#/components/responses/InternalServerError'
 
